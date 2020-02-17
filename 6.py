@@ -10,11 +10,11 @@ import viterbi_utils as vitutils
 if __name__ == '__main__':
 	start_time = time.time()
 
-	if not os.path.exists("./ner_train_multirare.dat"):
-		rwutils.generate_files(False)
+	print("Generating ner_train_multirare.dat...")
+	rwutils.generate_files(False)
 
-	if not os.path.exists("./ner_multirare.counts"):
-		os.system("python3 count_freqs3.py ner_train_multirare.dat > ner_multirare.counts")
+	print("Generating ner_train_multirare.counts...")
+	os.system("python3 count_freqs3.py ner_train_multirare.dat > ner_multirare.counts")
 	
 	try:
 		count_file = open("./ner_multirare.counts","r")

@@ -63,9 +63,11 @@ def predict(words_file, tag_to_count, tag_word_to_count, words, predict_file):
 
 if __name__ == "__main__":
 	if not os.path.exists("./ner_train_rare.dat"):
+		print("Generating ner_train_rare.dat...")
 		os.system("python3 4_1.py")
 
 	if not os.path.exists("./ner_rare.counts"):
+		print("Generating ner_rare.counts...")
 		os.system("python3 count_freqs3.py ner_train_rare.dat > ner_rare.counts")
 
 	try:

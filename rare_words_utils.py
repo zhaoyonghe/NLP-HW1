@@ -5,28 +5,21 @@ import re
 
 RARE = "_RARE_"
 FIR_CAP = "_FIRCAP_"
-ALL_CAP = "_ALLCAP_"
+ALL_CAP = "_ALLCAP_" # not useful
 ALL_NUM = "_ALLNUM_"
-HAS_NUM = "_HASNUM_"
+CAP_PER = "_CAPPER_"
 
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        pass
- 
-    try:
-        import unicodedata
-        unicodedata.numeric(s)
-        return True
-    except (TypeError, ValueError):
-        pass
- 
-    return False
+def is_all_num(word):
+	return re.match("^[\\d\\.\\-,]+$", word)
 
-def is_all_num(s):
-	return re.match("^[\\d\\.\\-,]+$", s)
+def is_fir_cap(word):
+	return word[0].isupper()
+
+def is_has_num(word):
+	return re.search("\\d", word)
+
+def is_cap_per(word):
+	return re.match("^[A-Z]\\..*", word)
 
 def get_rare_class(word, pure_rare = True):
 	if pure_rare:
@@ -34,6 +27,10 @@ def get_rare_class(word, pure_rare = True):
 	else:
 		if is_all_num(word):
 			return ALL_NUM
+		elif is_cap_per(word):
+			return CAP_PER
+		elif is_fir_cap(word):
+			return FIR_CAP
 		else:
 			return RARE
 

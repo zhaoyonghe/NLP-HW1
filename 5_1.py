@@ -1,5 +1,5 @@
 #! /usr/bin/python3
-
+import os
 import sys
 from collections import defaultdict
 import math
@@ -42,6 +42,12 @@ def calculate(input_file, output_file, bigram_count, trigram_count):
 		l = input_file.readline()
 
 if __name__ == "__main__":
+	if not os.path.exists("./ner_train_rare.dat"):
+		os.system("python3 4_1.py")
+
+	if not os.path.exists("./ner_rare.counts"):
+		os.system("python3 count_freqs3.py ner_train_rare.dat > ner_rare.counts")
+
 	try:
 		count_file = open("./ner_rare.counts","r")
 	except IOError:
@@ -49,8 +55,8 @@ if __name__ == "__main__":
 		sys.exit(1)
 
 	bigram_count, trigram_count = get_bigram_trigram_count_dict(count_file)
-	print(bigram_count)
-	print(trigram_count)
+	#print(bigram_count)
+	#print(trigram_count)
 
 	try:
 		input_file = open("./trigrams.txt","r")

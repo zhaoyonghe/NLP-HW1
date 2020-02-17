@@ -1,8 +1,9 @@
 #! /usr/bin/python3
-
+import os
 import sys
 from collections import defaultdict
 import math
+import rare_words_utils as rwutils
 
 temp = [("PER", "I-PER"),("ORG", "I-ORG"),("LOC", "I-LOC"),("ISC", "I-MISC"),("O","O")]
 
@@ -45,7 +46,7 @@ def predict(words_file, tag_to_count, tag_word_to_count, words, predict_file):
 			# word_count WORDTAG TAGTYPE word 
 			w = word
 			if word not in words:
-				w = "_RARE_"
+				w = rwutils.get_rare_class(word)
 
 			ma = 0
 			predicted_tag = ""			
@@ -61,6 +62,12 @@ def predict(words_file, tag_to_count, tag_word_to_count, words, predict_file):
 		l = words_file.readline()	
 
 if __name__ == "__main__":
+	if not os.path.exists("./ner_train_rare.dat"):
+		os.system("python3 4_1.py")
+
+	if not os.path.exists("./ner_rare.counts"):
+		os.system("python3 count_freqs3.py ner_train_rare.dat > ner_rare.counts")
+
 	try:
 		count_file = open("./ner_rare.counts","r")
 	except IOError:
@@ -84,5 +91,5 @@ if __name__ == "__main__":
 		sys.exit(1)
 
 	predict(words_file, tag_to_count, tag_word_to_count, words, predict_file)
-	print(tag_to_count)
+	# print(tag_to_count)
 	# rare words will always get the same prediction

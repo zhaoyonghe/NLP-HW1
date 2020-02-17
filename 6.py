@@ -10,16 +10,16 @@ import viterbi_utils as vitutils
 if __name__ == '__main__':
 	start_time = time.time()
 
-	if not os.path.exists("./ner_train_rare.dat"):
-		os.system("python3 4_1.py")
+	if not os.path.exists("./ner_train_multirare.dat"):
+		rwutils.generate_files(False)
 
-	if not os.path.exists("./ner_rare.counts"):
-		os.system("python3 count_freqs3.py ner_train_rare.dat > ner_rare.counts")
-
+	if not os.path.exists("./ner_multirare.counts"):
+		os.system("python3 count_freqs3.py ner_train_multirare.dat > ner_multirare.counts")
+	
 	try:
-		count_file = open("./ner_rare.counts","r")
+		count_file = open("./ner_multirare.counts","r")
 	except IOError:
-		sys.stderr.write("ERROR: Cannot read inputfile ./ner_rare.counts.\n")
+		sys.stderr.write("ERROR: Cannot read inputfile ./ner_multirare.counts.\n")
 		sys.exit(1)
 
 	bigram_count, trigram_count, tag_to_count, tag_word_to_count, words, T = vitutils.get_useful(count_file)
@@ -33,12 +33,15 @@ if __name__ == '__main__':
 		sys.exit(1)
 
 	try:
-		predict_file = open("./5_2.txt","w")
+		predict_file = open("./6.txt","w")
 	except IOError:
 		sys.stderr.write("ERROR: Cannot read inputfile ./5_2.txt.\n")
 		sys.exit(1)
 
-	tagging.predict(words_file, predict_file)
+	tagging.predict(words_file, predict_file, False)
 
 	end_time = time.time()
 	print("Running time: " + str(end_time - start_time))
+
+	
+

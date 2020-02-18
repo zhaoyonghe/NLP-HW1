@@ -11,9 +11,10 @@ if __name__ == '__main__':
 	start_time = time.time()
 
 	if not os.path.exists("./ner_train_rare.dat"):
-		os.system("python3 4_1.py")
+		rwutils.generate_files(True)
 
 	if not os.path.exists("./ner_rare.counts"):
+		print("Generating ./ner_rare.counts...")
 		os.system("python3 count_freqs3.py ner_train_rare.dat > ner_rare.counts")
 
 	try:
@@ -33,6 +34,7 @@ if __name__ == '__main__':
 		sys.exit(1)
 
 	try:
+		print("Generating ./5_2.txt...")
 		predict_file = open("./5_2.txt","w")
 	except IOError:
 		sys.stderr.write("ERROR: Cannot read inputfile ./5_2.txt.\n")
@@ -41,4 +43,4 @@ if __name__ == '__main__':
 	tagging.predict(words_file, predict_file)
 
 	end_time = time.time()
-	print("Running time: " + str(end_time - start_time))
+	print("Running time: " + str(end_time - start_time) + " seconds.")

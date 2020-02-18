@@ -4,13 +4,16 @@ import sys
 import time
 from collections import defaultdict
 import math
-import rare_words_utils as rwutils
 
-temp = [("PER", "I-PER"),("ORG", "I-ORG"),("LOC", "I-LOC"),("ISC", "I-MISC"),("O","O")]
+# temp = [("PER", "I-PER"),("ORG", "I-ORG"),("LOC", "I-LOC"),("ISC", "I-MISC"),("O","O")]
 
 def get_two_dicts_one_set(count_file):
+	# key: tag, value: count of that tag
 	tag_to_count = defaultdict(int)
+
+	# key: (tag, word), value: count of that (tag, word) pair
 	tag_word_to_count = defaultdict(int)
+
 	words = set()
 
 	l = count_file.readline()
@@ -23,20 +26,17 @@ def get_two_dicts_one_set(count_file):
 			fields = line.split(" ")
 			if fields[1] == "WORDTAG":
 				words.add(fields[3])
-				if len(fields[2]) == 1:
-					tag_to_count["O"] += int(fields[0])
-					tag_word_to_count[("O", fields[3])] += int(fields[0])
-				else:
-					for (k, v) in temp:
-						if fields[2][-3:] == k:
-							tag_to_count[v] += int(fields[0])
-							tag_word_to_count[(v, fields[3])] += int(fields[0])
-							break            
+				tag_to_count[fields[2]] += int(fields[0])
+				tag_word_to_count[(fields[2], fields[3])] += int(fields[0])
+
 		l = count_file.readline()
 
-	return tag_to_count, tag_word_to_count, words
+	temp = ["I-PER", "I-ORG", "I-LOC", "I-MISC", "B-PER", "B-ORG", "B-LOC", "B-MISC", "O"]
+	temp = [tag for tag in temp if tag_to_count[tag] != 0]
 
-def predict(words_file, tag_to_count, tag_word_to_count, words, predict_file):
+	return tag_to_count, tag_word_to_count, words, temp
+
+def predict(words_file, tag_to_count, tag_word_to_count, words, predict_file, temp):
 	l = words_file.readline()
 	while l:
 		word = l.strip()
@@ -47,11 +47,11 @@ def predict(words_file, tag_to_count, tag_word_to_count, words, predict_file):
 			# word_count WORDTAG TAGTYPE word 
 			w = word
 			if word not in words:
-				w = rwutils.get_rare_class(word)
+				w = "_RARE_"
 
 			ma = 0
 			predicted_tag = ""			
-			for (_, tag) in temp:
+			for tag in temp:
 				e = tag_word_to_count[(tag, w)] / tag_to_count[tag]
 				if e > ma:
 					ma = e
@@ -69,7 +69,7 @@ if __name__ == "__main__":
 		rwutils.generate_files(True)
 
 	if not os.path.exists("./ner_rare.counts"):
-		print("Generating ./ner_rare.counts...")
+		print("Generating ner_rare.counts...")
 		os.system("python3 count_freqs3.py ner_train_rare.dat > ner_rare.counts")
 
 	try:
@@ -78,9 +78,10 @@ if __name__ == "__main__":
 		sys.stderr.write("ERROR: Cannot read inputfile ./ner_rare.counts.\n")
 		sys.exit(1)
 
-	tag_to_count, tag_word_to_count, words = get_two_dicts_one_set(count_file)
+	tag_to_count, tag_word_to_count, words, temp = get_two_dicts_one_set(count_file)
 	#print(tag_to_count)
 	#print(tag_word_to_count)
+	#print(temp)
 
 	try:
 		words_file = open("./ner_dev.dat","r")
@@ -89,15 +90,14 @@ if __name__ == "__main__":
 		sys.exit(1)
 
 	try:
-		print("Generating ./4_2.txt...")
-		predict_file = open("./4_2.txt","w")
+		print("Generating ./4_2_diff.txt...")
+		predict_file = open("./4_2_diff.txt","w")
 	except IOError:
-		sys.stderr.write("ERROR: Cannot read inputfile ./4_2.txt.\n")
+		sys.stderr.write("ERROR: Cannot write outputfile ./4_2_diff.txt.\n")
 		sys.exit(1)
 
-	predict(words_file, tag_to_count, tag_word_to_count, words, predict_file)
-	# print(tag_to_count)
-	# the same word, rare words will always get the same prediction
-
+	predict(words_file, tag_to_count, tag_word_to_count, words, predict_file, temp)
+	# rare words will always get the same prediction
+	
 	end_time = time.time()
 	print("Running time: " + str(end_time - start_time) + " seconds.")

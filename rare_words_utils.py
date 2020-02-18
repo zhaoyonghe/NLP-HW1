@@ -8,15 +8,15 @@ RARE = "_RARE_"
 # other rare classes
 FIR_CAP = "_FIR_CAP_"
 ALL_CAP = "_ALL_CAP_" # not useful
-ALL_NUM = "_ALL_NUM_"
-CAP_PER = "_CAP_PER_"
+ALL_NUM = "_ALL_NUM_" # not useful
+CAP_PER = "_CAP_PER_" # not useful
 
 PUR_DIG = "_PUR_DIG_"
 
 TWO_DIG = "_TWO_DIG_" # not useful
 FOUR_DIG = "_FOUR_DIG_" # not useful
 
-DIG_CHA = "_DIG_CHA_"
+DIG_CHA = "_DIG_CHA_" # not useful
 
 
 RARE_CLASSES = [RARE, FIR_CAP, CAP_PER, ALL_NUM, DIG_CHA]
@@ -26,7 +26,7 @@ def is_all_num(word):
 	return re.match("^\\+?\\-?\\d(\\d|\\.|\\-|\\+|,|/)+$", word)
 
 def is_fir_cap(word):
-	return word[0].isupper()
+	return word[0].isupper() and not re.match("^[A-Z]+\\+?\\-?\\d(\\d|\\.|\\-|\\+|,|/)+$", word)
 
 def is_cap_per(word):
 	return re.match("^[A-Z]\\.", word)
@@ -40,10 +40,6 @@ def get_rare_class(word, pure_rare = True):
 	else:
 		if is_all_num(word):
 			return ALL_NUM
-		elif is_cap_per(word):
-			return CAP_PER
-		elif is_dig_cha(word):
-			return DIG_CHA
 		elif is_fir_cap(word):
 			return FIR_CAP
 		else:
@@ -100,7 +96,7 @@ def replace_rare_words(input_file, output_file, rare_words):
 
 def generate_files(pure_rare):
 	if not os.path.exists("./ner.counts"):
-		print("Gnerating ner.counts...")
+		print("Generating ./ner.counts...")
 		os.system("python3 count_freqs3.py ner_train.dat > ner.counts")
 
 	try:
@@ -110,7 +106,7 @@ def generate_files(pure_rare):
 		sys.exit(1)
 
 	rare_words = get_rare_words_dict(count_file, pure_rare)
-	print(rare_words)
+	#print(rare_words)
 
 	try:
 		input_file = open("./ner_train.dat","r")
@@ -121,12 +117,14 @@ def generate_files(pure_rare):
 	output_file = None
 	if pure_rare:
 		try:
+			print("Generating ./ner_train_rare.dat...")
 			output_file = open("./ner_train_rare.dat", "w")
 		except IOError:
 			sys.stderr.write("ERROR: Cannot write outputfile ./ner_train_rare.dat.\n")
 			sys.exit(1)
 	else:
 		try:
+			print("Generating ./ner_train_multirare.dat...")
 			output_file = open("./ner_train_multirare.dat", "w")
 		except IOError:
 			sys.stderr.write("ERROR: Cannot write outputfile ./ner_train_multirare.dat.\n")

@@ -100,7 +100,7 @@ class Tagging:
 		for i in range(1, len(sent)):
 			pi.append(defaultdict(list))
 
-		res = [("", "")] * (n + 1)
+		res = [["", "", 0]] * (n + 1)
 
 		rare_class_to_T = {}
 		rare_class_to_T[rwutils.RARE] = self.T[rwutils.RARE]
@@ -146,7 +146,7 @@ class Tagging:
 							maw = w
 					if ma > 0:
 						pi[k][v].append((u, ma))
-					bp[(k, u, v)] = maw
+					bp[(k, u, v)] = (maw, ma)
 
 		yn = ""
 		ynm1 = ""
@@ -164,11 +164,22 @@ class Tagging:
 					yn = v
 					ynm1 = u
 
-		res[n] = (sent[n], yn)
-		res[n - 1] = (sent[n - 1], ynm1)
+		#assert bp[(n, ynm1, yn)][0] == ynm2
+		res[n] = [sent[n], yn, 0]
+		res[n - 1] = [sent[n - 1], ynm1, 0]
 
 		for k in range(n - 2, 0, -1):
-			res[k] = (sent[k], bp[(k + 2, res[k + 1][1], res[k + 2][1])])
+			(yk, scorekp2) = bp[(k + 2, res[k + 1][1], res[k + 2][1])]
+			res[k] = [sent[k], yk, 0]
+			res[k + 2][2] = scorekp2
+			#print(str(k) + ":" + str(res))
+
+
+		#res[0][1] = "*"
+		if len(res) > 2:
+			res[2][2] = bp[(2, res[1][1], res[2][1])][1]
+		res[1][2] = bp[(1, "*", res[1][1])][1]
+		#res[1][2] = bp[(1, res[0][1], res[1][1])][1]
 
 		return res[1:]
 
@@ -177,8 +188,11 @@ class Tagging:
 		sent_iterator = sentence_iterator(simple_word_iterator(input_file))
 		for sent in sent_iterator:
 			res = self.viterbi(sent, pure_rare)
-			for (word, tag) in res:
+			for word_tag_score in res:
 				#output_file.write(w + " " + str(math.log2(s)) + "\n")
-				output_file.write(word + " " + tag + " -7\n")
+				word = word_tag_score[0]
+				tag = word_tag_score[1]
+				score = word_tag_score[2]
+				output_file.write(word + " " + tag + " " + str(math.log2(score)) + "\n")
 			output_file.write("\n")
 			#break

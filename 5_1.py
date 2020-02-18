@@ -1,8 +1,10 @@
 #! /usr/bin/python3
 import os
 import sys
+import time
 from collections import defaultdict
 import math
+import rare_words_utils as rwutils
 
 def get_bigram_trigram_count_dict(count_file):
 	bigram_count = defaultdict(int)
@@ -42,10 +44,13 @@ def calculate(input_file, output_file, bigram_count, trigram_count):
 		l = input_file.readline()
 
 if __name__ == "__main__":
+	start_time = time.time()
+
 	if not os.path.exists("./ner_train_rare.dat"):
-		os.system("python3 4_1.py")
+		rwutils.generate_files(True)
 
 	if not os.path.exists("./ner_rare.counts"):
+		print("Generating ./ner_rare.counts...")
 		os.system("python3 count_freqs3.py ner_train_rare.dat > ner_rare.counts")
 
 	try:
@@ -65,9 +70,13 @@ if __name__ == "__main__":
 		sys.exit(1)
 
 	try:
+		print("Generating ./5_1.txt...")
 		output_file = open("./5_1.txt", "w")
 	except IOError:
 		sys.stderr.write("ERROR: Cannot write outputfile ./5_1.txt.\n")
 		sys.exit(1)
 
 	calculate(input_file, output_file, bigram_count, trigram_count)
+
+	end_time = time.time()
+	print("Running time: " + str(end_time - start_time) + " seconds.")

@@ -10,11 +10,12 @@ import viterbi_utils as vitutils
 if __name__ == '__main__':
 	start_time = time.time()
 
-	print("Generating ner_train_multirare.dat...")
-	rwutils.generate_files(False)
+	if not os.path.exists("./ner_train_multirare.dat"):
+		rwutils.generate_files(False)
 
-	print("Generating ner_train_multirare.counts...")
-	os.system("python3 count_freqs3.py ner_train_multirare.dat > ner_multirare.counts")
+	if not os.path.exists("./ner_multirare.counts"):
+		print("Generating ./ner_multirare.counts...")
+		os.system("python3 count_freqs3.py ner_train_multirare.dat > ner_multirare.counts")
 	
 	try:
 		count_file = open("./ner_multirare.counts","r")
@@ -33,6 +34,7 @@ if __name__ == '__main__':
 		sys.exit(1)
 
 	try:
+		print("Generating ./6.txt...")
 		predict_file = open("./6.txt","w")
 	except IOError:
 		sys.stderr.write("ERROR: Cannot read inputfile ./5_2.txt.\n")
@@ -41,7 +43,7 @@ if __name__ == '__main__':
 	tagging.predict(words_file, predict_file, False)
 
 	end_time = time.time()
-	print("Running time: " + str(end_time - start_time))
+	print("Running time: " + str(end_time - start_time) + " seconds.")
 
 	
 

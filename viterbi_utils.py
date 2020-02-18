@@ -105,9 +105,8 @@ class Tagging:
 		rare_class_to_T = {}
 		rare_class_to_T[rwutils.RARE] = self.T[rwutils.RARE]
 		if not pure_rare:
-			rare_class_to_T[rwutils.ALL_NUM] = self.T[rwutils.ALL_NUM]
-			rare_class_to_T[rwutils.FIR_CAP] = self.T[rwutils.FIR_CAP]
-			rare_class_to_T[rwutils.CAP_PER] = self.T[rwutils.CAP_PER]
+			for rare_class in rwutils.RARE_CLASSES:
+				rare_class_to_T[rare_class] = self.T[rare_class]
 
 		bp = {}
 		for k in range(1, len(sent)):

@@ -4,22 +4,35 @@ from collections import defaultdict
 import re
 
 RARE = "_RARE_"
-FIR_CAP = "_FIRCAP_"
-ALL_CAP = "_ALLCAP_" # not useful
-ALL_NUM = "_ALLNUM_"
-CAP_PER = "_CAPPER_"
+
+# other rare classes
+FIR_CAP = "_FIR_CAP_"
+ALL_CAP = "_ALL_CAP_" # not useful
+ALL_NUM = "_ALL_NUM_"
+CAP_PER = "_CAP_PER_"
+
+PUR_DIG = "_PUR_DIG_"
+
+TWO_DIG = "_TWO_DIG_" # not useful
+FOUR_DIG = "_FOUR_DIG_" # not useful
+
+DIG_CHA = "_DIG_CHA_"
+
+
+RARE_CLASSES = [RARE, FIR_CAP, CAP_PER, ALL_NUM, DIG_CHA]
+
 
 def is_all_num(word):
-	return re.match("^[\\d\\.\\-,]+$", word)
+	return re.match("^\\+?\\-?\\d(\\d|\\.|\\-|\\+|,|/)+$", word)
 
 def is_fir_cap(word):
 	return word[0].isupper()
 
-def is_has_num(word):
-	return re.search("\\d", word)
-
 def is_cap_per(word):
-	return re.match("^[A-Z]\\..*", word)
+	return re.match("^[A-Z]\\.", word)
+
+def is_dig_cha(word):
+	return re.match("^[A-Z]+\\+?\\-?\\d(\\d|\\.|\\-|\\+|,|/)+$", word)
 
 def get_rare_class(word, pure_rare = True):
 	if pure_rare:
@@ -29,6 +42,8 @@ def get_rare_class(word, pure_rare = True):
 			return ALL_NUM
 		elif is_cap_per(word):
 			return CAP_PER
+		elif is_dig_cha(word):
+			return DIG_CHA
 		elif is_fir_cap(word):
 			return FIR_CAP
 		else:
